@@ -6,10 +6,10 @@ app.http("saveGamesCSV", {
   authLevel: "anonymous",
   handler: async (request, context) => {
     try {
-      const csv = await request.text();
+      const { gameKey, csv } = await request.json();
 
-      if (!csv || !csv.trim()) {
-        return { status: 400, body: "Empty CSV" };
+      if (!gameKey || !csv) {
+        return { status: 400, body: "Missing gameKey or csv" };
       }
 
       const blobServiceClient =
@@ -22,8 +22,10 @@ app.http("saveGamesCSV", {
 
       await containerClient.createIfNotExists();
 
+      const blobPath = `current/games/${gameKey}/config.csv`;
+
       const blobClient =
-        containerClient.getBlockBlobClient("current/GameData.csv");
+        containerClient.getBlockBlobClient(blobPath);
 
       await blobClient.uploadData(
         Buffer.from(csv),
