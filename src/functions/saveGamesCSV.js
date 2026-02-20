@@ -11,7 +11,6 @@ app.http("saveGamesCSV", {
         gameKey,
         configCSV,
         contentCSV,
-        contentType
       } = await request.json();
 
       if (!gameKey || !configCSV) {
@@ -46,10 +45,10 @@ app.http("saveGamesCSV", {
       );
 
       // Write content csv
-      if (contentCSV && contentType) {
+      if (contentCSV) {
 
         const contentPath =
-          `current/games/${gameKey}/${contentType}.csv`;
+          `current/games/${gameKey}/content.csv`;
 
         const contentBlob =
           containerClient.getBlockBlobClient(contentPath);

@@ -11,7 +11,7 @@ app.http("saveMarketplaceCSV", {
         gameKey,
         configCSV,
         contentCSV,
-        contentType
+        selectedCSV
       } = await request.json();
 
       if (!gameKey || !configCSV) {
@@ -30,7 +30,7 @@ app.http("saveMarketplaceCSV", {
 
       // write config csv
       const configPath =
-        `current/games/${gameKey}/config.csv`;
+        `current/marketplace/${gameKey}/config.csv`;
 
       const configBlob =
         containerClient.getBlockBlobClient(configPath);
@@ -46,16 +46,32 @@ app.http("saveMarketplaceCSV", {
       );
 
       // Write content csv
-      if (contentCSV && contentType) {
-
-        const contentPath =
-          `current/marketplace/${gameKey}/${contentType}.csv`;
+      if (contentCSV) {
+        const contentPath = `current/marketplace/${gameKey}/content.csv`;
 
         const contentBlob =
           containerClient.getBlockBlobClient(contentPath);
 
         await contentBlob.uploadData(
           Buffer.from(contentCSV),
+          {
+            blobHTTPHeaders: {
+              blobContentType: "text/csv; charset=utf-8"
+            },
+            overwrite: true
+          }
+        );
+      }
+
+      // Write selected csv
+      if (selectedCSV) {
+        const selectedPath = `current/marketplace/${gameKey}/selected.csv`;
+
+        const selectedBlob =
+          containerClient.getBlockBlobClient(selectedPath);
+
+        await selectedBlob.uploadData(
+          Buffer.from(selectedCSV),
           {
             blobHTTPHeaders: {
               blobContentType: "text/csv; charset=utf-8"
